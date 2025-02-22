@@ -1,6 +1,8 @@
 import React from 'react'
 import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, getKeyValue, Pagination} from "@heroui/react";
+import { Input } from '@heroui/react';
 import { PhoneCall } from "lucide-react";
+import { useState } from "react";
 
   
 
@@ -130,21 +132,93 @@ import { PhoneCall } from "lucide-react";
     },
   ];
 
-function OrgaEntrepriseTable() {
-  return (
-    <Table aria-label="Example table with dynamic content">
+  function OrgaEntrepriseTable() {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedRow, setSelectedRow] = useState(null);
+  
+    const handlePhoneCallClick = (row) => {
+      setSelectedRow(row);
+      setIsModalOpen(true);
+    };
+  
+    const handleCloseModal = () => {
+      setIsModalOpen(false);
+      setSelectedRow(null);
+    };
+  
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      // Handle form submission here
+      handleCloseModal();
+    };
+  
+    return (
+      <>
+        <Table aria-label="Example table with dynamic content">
           <TableHeader columns={columns}>
             {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
           </TableHeader>
           <TableBody items={rows}>
             {(item) => (
               <TableRow key={item.key}>
-                {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
+                {(columnKey) => (
+                  <TableCell>
+                    {columnKey === "actions" ? (
+                      <button
+                        onClick={() => handlePhoneCallClick(item)}
+                        className="flex items-center justify-center text-blue-500 hover:text-blue-700"
+                      >
+                        <PhoneCall size={20} />
+                      </button>
+                    ) : (
+                      getKeyValue(item, columnKey)
+                    )}
+                  </TableCell>
+                )}
               </TableRow>
             )}
           </TableBody>
         </Table>
-  )
-}
-
-export default OrgaEntrepriseTable
+  
+        {/* Modal */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+            <div className="bg-white p-6 rounded-lg w-96">
+              <h2 className="text-xl font-bold mb-4">Indiquez l'etat de l'appel</h2>
+              <form onSubmit={handleSubmit}>
+                <div className="mb-4">
+                    <Input label="Ajouter une ramarque ..." type="text" className="flex-grow" />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">Status de l'appel</label>
+                  <select className="w-full p-2 border rounded" required>
+                    <option value="">Sélectionnez un statut</option>
+                    <option value="Fait">Fait</option>
+                    <option value="Ca repond pas">Ca repond pas</option>
+                    <option value="Numero Indisponible">Numero Indisponible</option>
+                  </select>
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={handleCloseModal}
+                    className="mr-2 px-4 py-2 bg-gray-500 text-white rounded"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
+  
+  export default OrgaEntrepriseTable;
